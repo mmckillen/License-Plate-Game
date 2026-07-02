@@ -13,13 +13,18 @@ the app still runs perfectly — it just saves to the one device you're on.
 
 ## How to play
 
-- **Tap a plate** when you spot it on the road. It lights up green, counts up,
-  and adds to your progress.
-- **Tap it again** each time you see that state again — the badge tracks the total.
-- Made a mistake? Tap the **−** button on a found plate to knock the count down.
-- Use the **All / Found / Missing** tabs and the **sort** menu (A–Z, Recent,
-  Most seen) to slice the board however you like.
+- **Tap a plate** when you spot it on the road. It lights up green and is
+  **geotagged with the phone's location** (allow location permission when asked;
+  the plate still counts without it).
+- Tap **ⓘ map** on a found plate to see a pin where it was spotted, or the
+  **🗺️ button** up top for the whole-trip map of every find.
+- Made a mistake? Tap **✕** on a found plate to un-mark it.
+- Use the **All / Found / Missing** tabs and the **sort** menu (A–Z, Recent)
+  to slice the board however you like.
 - Open **⚙️ Settings** to change the game code, copy a share link, or reset.
+
+Maps are drawn with [Leaflet](https://leafletjs.com) + OpenStreetMap tiles,
+loaded on demand — the game itself works fine offline; the map just needs signal.
 
 ### Same board on multiple phones
 Everyone opens the **same game code** (default: `roadtrip`). Use

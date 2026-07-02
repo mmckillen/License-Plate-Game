@@ -16,13 +16,15 @@
   <header class="topbar">
     <div class="title-row">
       <h1>🚗 License Plate Game</h1>
-      <button id="menuBtn" class="icon-btn" aria-label="Settings">⚙️</button>
+      <div class="title-btns">
+        <button id="mapBtn" class="icon-btn" aria-label="Trip map">🗺️</button>
+        <button id="menuBtn" class="icon-btn" aria-label="Settings">⚙️</button>
+      </div>
     </div>
     <div class="progress">
       <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
       <div class="progress-meta">
         <span id="foundCount">0</span> of 51 found
-        <span id="totalSpots" class="muted"></span>
       </div>
     </div>
     <div class="controls">
@@ -36,7 +38,6 @@
         <select id="sortSel">
           <option value="name">A–Z</option>
           <option value="recent">Recent</option>
-          <option value="most">Most seen</option>
         </select>
       </div>
     </div>
@@ -69,12 +70,23 @@
       <button id="resetBtn" class="btn danger full">Reset this board</button>
 
       <p class="muted small">
-        Tap a plate when you spot it — it counts up and marks it found.
-        Use the − button to fix a miscount.
+        Tap a plate when you spot it — it's marked found and geotagged with
+        your location. Tap ⓘ on a found plate to see where, or 🗺️ for the
+        whole trip.
       </p>
       <button id="closeSheet" class="btn ghost full">Close</button>
     </div>
     <div class="sheet-scrim" id="sheetScrim"></div>
+  </div>
+
+  <!-- Map overlay (single plate or whole trip) -->
+  <div id="mapOverlay" class="map-overlay hidden" role="dialog" aria-modal="true" aria-label="Map">
+    <div class="map-top">
+      <h2 id="mapTitle">Trip map</h2>
+      <button id="closeMap" class="icon-btn" aria-label="Close map">✕</button>
+    </div>
+    <div id="mapMsg" class="map-msg hidden"></div>
+    <div id="mapCanvas"></div>
   </div>
 
   <div id="toast" class="toast hidden"></div>

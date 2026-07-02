@@ -195,7 +195,12 @@
   function refreshSyncBadge() {
     const badge = document.getElementById("syncBadge");
     const help = document.getElementById("syncHelp");
-    if (Sync.mode === "firebase") {
+    if (Sync.lastError) {
+      badge.textContent = "⚠ Sync error";
+      badge.className = "badge error";
+      help.textContent = "Saving to this device instead. Usually the Firebase " +
+        "database is missing or its rules deny access. (" + Sync.lastError + ")";
+    } else if (Sync.mode === "firebase") {
       badge.textContent = "● Live sync";
       badge.className = "badge live";
       help.textContent = "All devices on this game code update in real time.";
@@ -235,6 +240,9 @@
     await Sync.init(code, (incoming) => {
       data = incoming || {};
       render();
+    }, (errMsg) => {
+      toast("⚠ Sync problem — saving to this device");
+      refreshSyncBadge();
     });
     refreshSyncBadge();
     render();

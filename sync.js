@@ -3,9 +3,12 @@
 // It auto-detects: if firebase-config.js has real values, it uses Firebase;
 // otherwise it falls back to localStorage so the game still works instantly.
 //
-// Data shape passed to the app:  { AL: {count, ts}, CA: {count, ts}, ... }
-//   count = number of times that plate has been spotted (found === count > 0)
-//   ts    = timestamp of the most recent change (ms since epoch)
+// Data shape passed to the app:  { AL: {found, ts, lat, lng}, ... }
+//   found = true once the plate has been spotted
+//   ts    = when it was spotted (ms since epoch)
+//   lat/lng = where it was spotted (absent if location was unavailable)
+// Legacy entries from the counting era look like {count, ts}; count > 0 is
+// treated as found so old boards keep their progress.
 
 const Sync = (() => {
   let mode = "local";          // "firebase" | "local"
@@ -80,18 +83,22 @@ const Sync = (() => {
     });
   }
 
-  // One-time carry-over: counts recorded on this device before sync was
-  // enabled (or while offline) get merged into the shared board. Per plate,
-  // the higher count wins so we never erase the group's progress.
+  function entryIsFound(e) {
+    return !!e && (e.found === true || ((e.count | 0) > 0));
+  }
+
+  // One-time carry-over: plates recorded on this device before sync was
+  // enabled (or while offline) get merged into the shared board. A plate
+  // already found remotely is never overwritten.
   function migrateLocalToCloud(remote) {
     const migratedKey = "lpg:migrated:" + gameCode;
     if (localStorage.getItem(migratedKey)) return;
     const local = lsRead();
     const updates = {};
     Object.keys(local).forEach((code) => {
-      const lc = (local[code] && local[code].count) || 0;
-      const rc = (remote[code] && remote[code].count) || 0;
-      if (lc > rc) updates[code] = { count: lc, ts: (local[code] && local[code].ts) || Date.now() };
+      if (entryIsFound(local[code]) && !entryIsFound(remote[code])) {
+        updates[code] = local[code];
+      }
     });
     if (Object.keys(updates).length > 0) {
       ref.update(dbRef, updates)
@@ -127,10 +134,8 @@ const Sync = (() => {
     startLocal();
   }
 
-  // Set an absolute count for a plate (used for both + and −).
-  function setCount(codeState, count) {
-    count = Math.max(0, count | 0);
-    const entry = { count, ts: Date.now() };
+  // Write a plate's full entry ({found, ts, lat, lng, ...}); null removes it.
+  function setPlate(codeState, entry) {
     if (mode === "firebase") {
       ref.set(ref.ref(db, "games/" + gameCode + "/plates/" + codeState), entry)
         .catch((err) => {
@@ -142,7 +147,8 @@ const Sync = (() => {
         });
     } else {
       const data = lsRead();
-      data[codeState] = entry;
+      if (entry) data[codeState] = entry;
+      else delete data[codeState];
       lsWrite(data);
       onChange(data);
     }
@@ -173,7 +179,7 @@ const Sync = (() => {
   }
 
   return {
-    init, setCount, resetAll, switchGame, normalizeCode,
+    init, setPlate, resetAll, switchGame, normalizeCode,
     get mode() { return mode; },
     get gameCode() { return gameCode; },
     get lastError() { return lastError; },

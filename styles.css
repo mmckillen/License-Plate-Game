@@ -38,6 +38,7 @@ html, body {
 
 .title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .title-row h1 { font-size: 19px; margin: 0; letter-spacing: .2px; }
+.title-btns { display: flex; gap: 8px; }
 
 .icon-btn {
   background: var(--panel); border: 1px solid #ffffff14; color: var(--text);
@@ -130,19 +131,21 @@ html, body {
   display: flex; align-items: center; justify-content: space-between;
   padding: 6px 10px 9px; gap: 6px;
 }
-.count-badge {
-  min-width: 26px; height: 24px; padding: 0 7px; border-radius: 999px;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 800; background: #00000035; color: var(--muted);
-}
-.card.found .count-badge { background: var(--accent-2); color: #06210f; }
-.minus {
+.card.missing .card-footer { visibility: hidden; }
+.info {
   border: 1px solid #ffffff18; background: #00000030; color: var(--text);
-  width: 26px; height: 24px; border-radius: 8px; font-size: 15px; line-height: 1;
+  height: 26px; padding: 0 10px; border-radius: 999px; font-size: 12px;
+  font-weight: 700; cursor: pointer; display: inline-flex; align-items: center;
+}
+.card.found .info { background: var(--accent-2); color: #06210f; border-color: transparent; }
+.card.found .info.no-loc { background: #00000035; color: var(--muted); border: 1px solid #ffffff18; }
+.info:active { transform: scale(.94); }
+.remove {
+  border: 1px solid #ffffff18; background: #00000030; color: var(--muted);
+  width: 26px; height: 26px; border-radius: 8px; font-size: 13px; line-height: 1;
   cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
 }
-.minus:active { transform: scale(.9); }
-.card.missing .minus { visibility: hidden; }
+.remove:active { transform: scale(.9); }
 
 .check {
   position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%;
@@ -188,6 +191,38 @@ html, body {
 .badge.live { background: #06341c; color: var(--accent-2); border-color: #4ade8040; }
 .badge.local { background: #33270a; color: var(--accent); border-color: #f4c54240; }
 .badge.error { background: #3a1414; color: #ffb4b4; border-color: #ef444440; }
+
+/* ── Map overlay ─────────────────────────────────────────── */
+.map-overlay {
+  position: fixed; inset: 0; z-index: 55; background: var(--bg);
+  display: flex; flex-direction: column;
+}
+.map-overlay.hidden { display: none; }
+.map-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: calc(env(safe-area-inset-top) + 10px) 14px 10px;
+  border-bottom: 1px solid #ffffff12;
+}
+.map-top h2 { margin: 0; font-size: 17px; }
+#mapCanvas { flex: 1; width: 100%; background: #1a2438; }
+#mapCanvas.hidden { display: none; }
+.map-msg {
+  padding: 22px 18px; color: var(--muted); font-size: 14px; line-height: 1.5;
+  white-space: pre-wrap; font-variant-numeric: tabular-nums;
+}
+.map-msg.hidden { display: none; }
+
+/* Mini license-plate map pins */
+.pin-plate span {
+  --pbg: #f4c542; --ptext: #1c3a66;
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 24px; border-radius: 5px;
+  background: var(--pbg); color: var(--ptext);
+  border: 2px solid #00000055;
+  font-family: "Arial Narrow", Arial, sans-serif;
+  font-size: 12px; font-weight: 800; letter-spacing: 1px;
+  box-shadow: 0 2px 6px #00000070;
+}
 
 /* ── Toast ───────────────────────────────────────────────── */
 .toast {

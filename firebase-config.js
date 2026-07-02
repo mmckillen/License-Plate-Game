@@ -20,11 +20,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 window.FIREBASE_CONFIG = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyCPo3qsi0vI_9BJcQaFzSD7s0vncRtHVfs",
+  authDomain: "license-plate-game-43b47.firebaseapp.com",
+  databaseURL: "https://license-plate-game-43b47-default-rtdb.firebaseio.com",
+  projectId: "license-plate-game-43b47",
+  storageBucket: "license-plate-game-43b47.firebasestorage.app",
+  messagingSenderId: "993682173575",
+  appId: "1:993682173575:web:b79b4ea095ceffc4f9d222",
 };

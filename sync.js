@@ -11,6 +11,8 @@ const Sync = (() => {
   let mode = "local";          // "firebase" | "local"
   let gameCode = "roadtrip";
   let onChange = () => {};
+  let onStatus = () => {};     // called with an error message when sync breaks
+  let lastError = null;
   let db = null;               // firebase database handle
   let ref = null;              // firebase ref helpers
   let dbRef = null;            // current game ref
@@ -59,15 +61,58 @@ const Sync = (() => {
   function attachFirebase() {
     if (unsub) { unsub(); unsub = null; }
     dbRef = ref.ref(db, "games/" + gameCode + "/plates");
+    let firstSnapshot = true;
     unsub = ref.onValue(dbRef, (snap) => {
-      onChange(snap.val() || {});
+      const remote = snap.val() || {};
+      if (firstSnapshot) {
+        firstSnapshot = false;
+        migrateLocalToCloud(remote);
+      }
+      lastError = null;
+      onChange(remote);
+    }, (err) => {
+      // Read/write denied (bad rules) or database missing. Surface it and
+      // fall back to local so the game stays playable.
+      console.error("Firebase sync error:", err);
+      lastError = err && err.message ? err.message : String(err);
+      onStatus(lastError);
+      startLocal();
     });
   }
 
+  // One-time carry-over: counts recorded on this device before sync was
+  // enabled (or while offline) get merged into the shared board. Per plate,
+  // the higher count wins so we never erase the group's progress.
+  function migrateLocalToCloud(remote) {
+    const migratedKey = "lpg:migrated:" + gameCode;
+    if (localStorage.getItem(migratedKey)) return;
+    const local = lsRead();
+    const updates = {};
+    Object.keys(local).forEach((code) => {
+      const lc = (local[code] && local[code].count) || 0;
+      const rc = (remote[code] && remote[code].count) || 0;
+      if (lc > rc) updates[code] = { count: lc, ts: (local[code] && local[code].ts) || Date.now() };
+    });
+    if (Object.keys(updates).length > 0) {
+      ref.update(dbRef, updates)
+        .then(() => localStorage.setItem(migratedKey, "1"))
+        .catch((err) => {
+          // Leave the flag unset so we retry on the next load
+          // (e.g. after the user fixes the database rules).
+          console.error("Migrating local counts failed:", err);
+          lastError = err && err.message ? err.message : String(err);
+          onStatus(lastError);
+        });
+    } else {
+      localStorage.setItem(migratedKey, "1");
+    }
+  }
+
   // ---- Public API ------------------------------------------------------------
-  async function init(code, changeCb) {
+  async function init(code, changeCb, statusCb) {
     gameCode = normalizeCode(code);
     onChange = changeCb || (() => {});
+    onStatus = statusCb || (() => {});
     const cfg = window.FIREBASE_CONFIG;
     if (configLooksReal(cfg)) {
       try {
@@ -75,6 +120,8 @@ const Sync = (() => {
         return;
       } catch (err) {
         console.warn("Firebase init failed, falling back to local:", err);
+        lastError = err && err.message ? err.message : String(err);
+        onStatus(lastError);
       }
     }
     startLocal();
@@ -85,7 +132,14 @@ const Sync = (() => {
     count = Math.max(0, count | 0);
     const entry = { count, ts: Date.now() };
     if (mode === "firebase") {
-      ref.set(ref.ref(db, "games/" + gameCode + "/plates/" + codeState), entry);
+      ref.set(ref.ref(db, "games/" + gameCode + "/plates/" + codeState), entry)
+        .catch((err) => {
+          // Most common cause: database rules deny writes (locked mode /
+          // expired test mode). Tell the UI instead of failing silently.
+          console.error("Firebase write failed:", err);
+          lastError = err && err.message ? err.message : String(err);
+          onStatus(lastError);
+        });
     } else {
       const data = lsRead();
       data[codeState] = entry;
@@ -122,5 +176,6 @@ const Sync = (() => {
     init, setCount, resetAll, switchGame, normalizeCode,
     get mode() { return mode; },
     get gameCode() { return gameCode; },
+    get lastError() { return lastError; },
   };
 })();

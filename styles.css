@@ -187,6 +187,7 @@ html, body {
 }
 .badge.live { background: #06341c; color: var(--accent-2); border-color: #4ade8040; }
 .badge.local { background: #33270a; color: var(--accent); border-color: #f4c54240; }
+.badge.error { background: #3a1414; color: #ffb4b4; border-color: #ef444440; }
 
 /* ── Toast ───────────────────────────────────────────────── */
 .toast {

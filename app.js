@@ -132,7 +132,9 @@
       (err) => {
         if (geoWarned) return;
         geoWarned = true;
-        toast("📍 No location — plate still counted");
+        toast(err && err.code === 1
+          ? "📍 Location blocked — see ⚙️ → Test location"
+          : "📍 No GPS fix — plate still counted");
         console.warn("Geolocation failed:", err && err.message);
       },
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
@@ -309,6 +311,50 @@
         Sync.resetAll();
         toast("Board reset");
       }
+    });
+
+    // On-demand location check: triggers the permission prompt and reports
+    // exactly what happened, so "why no pins?" is diagnosable from the phone.
+    document.getElementById("geoBtn").addEventListener("click", () => {
+      const out = document.getElementById("geoStatus");
+      if (!navigator.geolocation) {
+        out.textContent = "❌ This browser has no location support.";
+        return;
+      }
+      out.textContent = "Requesting location… (watch for a permission prompt)";
+      // Browsers can leave the request hanging forever if the permission
+      // prompt is suppressed (e.g. Location Services off at the OS level) —
+      // the timeout option doesn't cover that, so run our own watchdog.
+      const watchdog = setTimeout(() => {
+        out.textContent = "❌ No answer from the phone — the permission prompt " +
+          "never appeared. iPhone: Settings → Privacy & Security → Location " +
+          "Services must be ON, and “Safari Websites” (in that list) set to " +
+          "“While Using the App”. Then retry.";
+      }, 20000);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          clearTimeout(watchdog);
+          out.textContent = "✅ Location works! " +
+            pos.coords.latitude.toFixed(4) + ", " + pos.coords.longitude.toFixed(4) +
+            " (±" + Math.round(pos.coords.accuracy) + " m). New finds will get pins.";
+          geoWarned = false;
+        },
+        (err) => {
+          clearTimeout(watchdog);
+          if (err.code === 1) {
+            out.textContent = "❌ Location is blocked for this site. iPhone fix: " +
+              "1) Settings → Privacy & Security → Location Services → ON, and under " +
+              "Safari Websites choose “While Using the App”. 2) In Safari, tap the " +
+              "“aA” (or puzzle-piece) icon in the address bar → Website Settings → " +
+              "Location → Allow. Then come back and tap Test again.";
+          } else if (err.code === 2) {
+            out.textContent = "❌ Position unavailable — the phone couldn't get a fix (no GPS signal?). Try again outdoors.";
+          } else {
+            out.textContent = "❌ Timed out waiting for a GPS fix. Try again in a moment.";
+          }
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
     });
 
     document.getElementById("shareBtn").addEventListener("click", async () => {

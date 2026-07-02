@@ -1,0 +1,18 @@
+{
+  "name": "License Plate Game",
+  "short_name": "Plates",
+  "description": "Spot license plates from all 50 states + D.C. on your road trip.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0e1726",
+  "theme_color": "#0e1726",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%230e1726'/%3E%3Crect x='72' y='156' width='368' height='200' rx='28' fill='%23f4c542'/%3E%3Ctext x='256' y='296' font-size='120' font-family='Arial' font-weight='bold' text-anchor='middle' fill='%231c3a66'%3EUSA%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

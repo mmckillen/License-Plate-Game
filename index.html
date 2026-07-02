@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0e1726" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>License Plate Game</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230e1726'/><rect x='14' y='30' width='72' height='40' rx='6' fill='%23f4c542'/><text x='50' y='58' font-size='24' font-family='Arial' font-weight='bold' text-anchor='middle' fill='%231c3a66'>USA</text></svg>" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="title-row">
+      <h1>🚗 License Plate Game</h1>
+      <button id="menuBtn" class="icon-btn" aria-label="Settings">⚙️</button>
+    </div>
+    <div class="progress">
+      <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+      <div class="progress-meta">
+        <span id="foundCount">0</span> of 51 found
+        <span id="totalSpots" class="muted"></span>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="segmented" role="tablist">
+        <button class="seg active" data-filter="all" role="tab">All</button>
+        <button class="seg" data-filter="found" role="tab">Found</button>
+        <button class="seg" data-filter="missing" role="tab">Missing</button>
+      </div>
+      <div class="sort-wrap">
+        <label for="sortSel" class="sr-only">Sort</label>
+        <select id="sortSel">
+          <option value="name">A–Z</option>
+          <option value="recent">Recent</option>
+          <option value="most">Most seen</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main id="grid" class="grid" aria-live="polite"></main>
+
+  <!-- Settings sheet -->
+  <div id="sheet" class="sheet hidden" role="dialog" aria-modal="true" aria-label="Settings">
+    <div class="sheet-panel">
+      <div class="sheet-handle"></div>
+      <h2>Game settings</h2>
+
+      <label class="field">
+        <span>Game code <small class="muted">(share this so devices join the same board)</small></span>
+        <div class="row">
+          <input id="gameCodeInput" type="text" inputmode="latin" autocapitalize="off"
+                 autocomplete="off" spellcheck="false" placeholder="roadtrip" />
+          <button id="joinBtn" class="btn">Join</button>
+        </div>
+      </label>
+
+      <button id="shareBtn" class="btn ghost full">🔗 Copy shareable link</button>
+
+      <div class="status-line">
+        <span id="syncBadge" class="badge">…</span>
+        <span id="syncHelp" class="muted"></span>
+      </div>
+
+      <button id="resetBtn" class="btn danger full">Reset this board</button>
+
+      <p class="muted small">
+        Tap a plate when you spot it — it counts up and marks it found.
+        Use the − button to fix a miscount.
+      </p>
+      <button id="closeSheet" class="btn ghost full">Close</button>
+    </div>
+    <div class="sheet-scrim" id="sheetScrim"></div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- config first, then data, then logic -->
+  <script src="firebase-config.js"></script>
+  <script src="plates.js"></script>
+  <script src="sync.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

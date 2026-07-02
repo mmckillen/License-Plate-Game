@@ -28,6 +28,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          # Automatically enable GitHub Pages (source: GitHub Actions)
+          # so no manual Settings → Pages step is needed.
+          enablement: true
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
